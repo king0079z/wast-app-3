@@ -14,42 +14,91 @@ module.exports = async (req, res) => {
 
   try {
     if (req.method === 'GET') {
-      // Return all system data
+      // Return all system data in the format expected by the client
       const systemData = {
-        bins: db.getBins(),
-        users: db.getUsers(),
-        collections: db.getCollections(),
-        issues: db.getIssues(),
-        vehicles: db.getVehicles(),
-        routes: db.getRoutes(),
-        alerts: db.getAlerts(),
-        complaints: db.getComplaints(),
-        analytics: db.getAnalytics(),
-        systemLogs: db.getSystemLogs(),
+        success: true,
+        data: {
+          bins: db.getBins(),
+          users: db.getUsers(),
+          collections: db.getCollections(),
+          issues: db.getIssues(),
+          vehicles: db.getVehicles(),
+          routes: db.getRoutes(),
+          alerts: db.getAlerts(),
+          complaints: db.getComplaints(),
+          analytics: db.getAnalytics(),
+          systemLogs: db.getSystemLogs(),
+          driverLocations: {}
+        },
         timestamp: new Date().toISOString()
       };
+
+      // Add driver locations
+      const drivers = db.getUsers().filter(user => user.type === 'driver');
+      drivers.forEach(driver => {
+        if (driver.lastLocation) {
+          systemData.data.driverLocations[driver.id] = {
+            lat: driver.lastLocation.latitude,
+            lng: driver.lastLocation.longitude,
+            timestamp: driver.lastUpdate || new Date().toISOString(),
+            speed: 0,
+            accuracy: 50
+          };
+        }
+      });
 
       console.log('📊 Data sync requested');
       res.status(200).json(systemData);
     } else if (req.method === 'POST') {
-      // Handle data updates
-      const { type, data } = req.body;
+      // Handle data updates from client
+      const requestData = req.body;
       
-      console.log('📥 Data update received:', type);
+      console.log('📥 Data sync update received');
       
-      // Process different types of updates
-      switch (type) {
-        case 'driver_location':
-          db.updateDriverLocation(data.driverId, data.latitude, data.longitude);
-          break;
-        case 'driver_status':
-          db.updateDriverStatus(data.driverId, data.status, data.movementStatus);
-          break;
-        case 'collection':
-          db.addCollection(data);
-          break;
-        default:
-          console.log('⚠️ Unknown update type:', type);
+      // Handle the sync format from the client
+      if (requestData.data) {
+        const { data, updateType } = requestData;
+        
+        // Update in-memory data with received data
+        Object.keys(data).forEach(key => {
+          if (data[key] !== undefined && data[key] !== null) {
+            // Update the appropriate data store
+            switch (key) {
+              case 'users':
+                if (Array.isArray(data[key])) {
+                  // Merge users data
+                  db.inMemoryData.users = data[key];
+                }
+                break;
+              case 'driverLocations':
+                if (typeof data[key] === 'object') {
+                  // Update driver locations
+                  Object.keys(data[key]).forEach(driverId => {
+                    const location = data[key][driverId];
+                    if (location.lat && location.lng) {
+                      db.updateDriverLocation(driverId, location.lat, location.lng);
+                    }
+                  });
+                }
+                break;
+              case 'collections':
+                if (Array.isArray(data[key])) {
+                  db.inMemoryData.collections = data[key];
+                }
+                break;
+              case 'routes':
+                if (Array.isArray(data[key])) {
+                  db.inMemoryData.routes = data[key];
+                }
+                break;
+              default:
+                if (db.inMemoryData[key] !== undefined) {
+                  db.inMemoryData[key] = data[key];
+                }
+            }
+            console.log(`📝 Updated ${key} data`);
+          }
+        });
       }
 
       res.status(200).json({

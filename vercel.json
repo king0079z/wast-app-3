@@ -1,12 +1,6 @@
 {
   "version": 2,
   "name": "autonautics-waste-management",
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "@vercel/node@3.0.7",
-      "maxDuration": 30
-    }
-  },
   "routes": [
     {
       "src": "/api/(.*)",
@@ -23,7 +17,6 @@
   ],
   "env": {
     "NODE_ENV": "production"
-  },
-  "regions": ["iad1"]
+  }
 }
 

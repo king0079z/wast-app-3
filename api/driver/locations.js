@@ -46,10 +46,26 @@ module.exports = async (req, res) => {
 
     console.log(`📍 Driver locations requested: ${driverLocations.length} drivers`);
     
+    // Convert to the format expected by the client
+    const locations = {};
+    driverLocations.forEach(driver => {
+      if (driver.location) {
+        locations[driver.driverId] = {
+          lat: driver.location.latitude,
+          lng: driver.location.longitude,
+          timestamp: driver.lastUpdate,
+          speed: 0,
+          accuracy: 50,
+          name: driver.name,
+          status: driver.status,
+          movementStatus: driver.movementStatus
+        };
+      }
+    });
+    
     res.status(200).json({
       success: true,
-      drivers: driverLocations,
-      count: driverLocations.length,
+      locations: locations,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
