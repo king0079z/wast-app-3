@@ -1,0 +1,223 @@
+<!-- Add this script directly to your index.html before the closing </body> tag -->
+<script>
+// Immediate fix for driver route functionality
+(function() {
+    // Override the assignRouteToDriver function
+    window.assignRouteToDriver = function(driverId) {
+        const driver = dataManager.getUserById(driverId);
+        if (!driver) {
+            alert('Driver not found');
+            return;
+        }
+        
+        const driverLocation = dataManager.getDriverLocation(driverId);
+        if (!driverLocation) {
+            alert('Driver location not available. Please wait for GPS to initialize.');
+            return;
+        }
+        
+        // Get all bins with distances
+        const bins = dataManager.getBins();
+        const binsWithDistance = bins.map(bin => {
+            const distance = mapManager.calculateDistance(
+                driverLocation.lat, 
+                driverLocation.lng, 
+                bin.lat, 
+                bin.lng
+            );
+            return { ...bin, distance };
+        }).sort((a, b) => a.distance - b.distance);
+        
+        // Categorize bins
+        const criticalBins = binsWithDistance.filter(b => b.fill >= 80);
+        const warningBins = binsWithDistance.filter(b => b.fill >= 60 && b.fill < 80);
+        const normalBins = binsWithDistance.filter(b => b.fill < 60);
+        
+        // Create simple modal content
+        let modalHTML = '<div style="padding: 20px; max-height: 500px; overflow-y: auto;">';
+        modalHTML += '<h3>Assign Bins to ' + driver.name + '</h3>';
+        
+        // AI Recommendation
+        modalHTML += '<div style="background: linear-gradient(135deg, #667eea, #764ba2); padding: 15px; border-radius: 8px; margin: 15px 0; color: white;">';
+        modalHTML += '<h4>🤖 AI Recommendations</h4>';
+        modalHTML += '<p>Nearest critical bins are highlighted for optimal routing</p>';
+        modalHTML += '</div>';
+        
+        // Critical Bins
+        if (criticalBins.length > 0) {
+            modalHTML += '<h4 style="color: #ef4444;">⚠️ Critical Priority</h4>';
+            criticalBins.slice(0, 3).forEach((bin, index) => {
+                modalHTML += '<div style="background: rgba(239, 68, 68, 0.1); border: 2px solid #ef4444; padding: 10px; margin: 10px 0; border-radius: 8px;">';
+                modalHTML += '<strong>' + bin.id + '</strong> - ' + bin.location;
+                if (index === 0) modalHTML += ' <span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 10px;">NEAREST</span>';
+                modalHTML += '<br>Fill: ' + bin.fill + '% | Distance: ' + bin.distance.toFixed(1) + ' km';
+                modalHTML += '<br><button class="btn btn-danger btn-sm" style="margin-top: 5px;" onclick="assignSingleBin(\'' + driverId + '\', \'' + bin.id + '\')">Assign This Bin</button>';
+                modalHTML += '</div>';
+            });
+        }
+        
+        // Warning Bins
+        if (warningBins.length > 0) {
+            modalHTML += '<h4 style="color: #f59e0b;">⚠️ High Priority</h4>';
+            warningBins.slice(0, 3).forEach(bin => {
+                modalHTML += '<div style="background: rgba(245, 158, 11, 0.1); border: 1px solid #f59e0b; padding: 10px; margin: 10px 0; border-radius: 8px;">';
+                modalHTML += '<strong>' + bin.id + '</strong> - ' + bin.location;
+                modalHTML += '<br>Fill: ' + bin.fill + '% | Distance: ' + bin.distance.toFixed(1) + ' km';
+                modalHTML += '<br><button class="btn btn-warning btn-sm" style="margin-top: 5px;" onclick="assignSingleBin(\'' + driverId + '\', \'' + bin.id + '\')">Assign This Bin</button>';
+                modalHTML += '</div>';
+            });
+        }
+        
+        // Normal Bins
+        if (normalBins.length > 0) {
+            modalHTML += '<h4 style="color: #10b981;">✓ Normal Priority</h4>';
+            normalBins.slice(0, 5).forEach(bin => {
+                modalHTML += '<div style="background: rgba(16, 185, 129, 0.05); border: 1px solid #10b981; padding: 10px; margin: 10px 0; border-radius: 8px;">';
+                modalHTML += '<strong>' + bin.id + '</strong> - ' + bin.location;
+                modalHTML += '<br>Fill: ' + bin.fill + '% | Distance: ' + bin.distance.toFixed(1) + ' km';
+                modalHTML += '<br><button class="btn btn-success btn-sm" style="margin-top: 5px;" onclick="assignSingleBin(\'' + driverId + '\', \'' + bin.id + '\')">Assign This Bin</button>';
+                modalHTML += '</div>';
+            });
+        }
+        
+        modalHTML += '</div>';
+        
+        // Show in modal
+        const modal = document.getElementById('customModal');
+        const modalBody = document.getElementById('modalBody');
+        if (modal && modalBody) {
+            modalBody.innerHTML = modalHTML;
+            modal.style.display = 'flex';
+        } else {
+            // Fallback to alert if modal not found
+            alert('Bins available for assignment:\n' + 
+                  'Critical: ' + criticalBins.length + '\n' + 
+                  'Warning: ' + warningBins.length + '\n' + 
+                  'Normal: ' + normalBins.length);
+        }
+    };
+    
+    // Function to assign a single bin
+    window.assignSingleBin = function(driverId, binId) {
+        const driver = dataManager.getUserById(driverId);
+        const bin = dataManager.getBinById(binId);
+        
+        if (!driver || !bin) {
+            alert('Error: Driver or bin not found');
+            return;
+        }
+        
+        // Create route
+        const route = {
+            id: 'ROUTE-' + Date.now(),
+            driverId: driverId,
+            binId: binId,
+            status: 'assigned',
+            assignedAt: new Date().toISOString()
+        };
+        
+        // Store route
+        const existingRoutes = JSON.parse(localStorage.getItem('driverRoutes_' + driverId) || '[]');
+        existingRoutes.push(route);
+        localStorage.setItem('driverRoutes_' + driverId, JSON.stringify(existingRoutes));
+        
+        // Update bin
+        bin.assignedTo = driverId;
+        dataManager.updateBin(binId, bin);
+        
+        alert('Bin ' + binId + ' assigned to ' + driver.name);
+        
+        // Close modal
+        const modal = document.getElementById('customModal');
+        if (modal) modal.style.display = 'none';
+        
+        // Refresh map
+        if (window.mapManager) {
+            mapManager.loadBinsOnMap();
+        }
+    };
+    
+    // Fix for Start Route button
+    document.addEventListener('DOMContentLoaded', function() {
+        // Wait a bit for everything to load
+        setTimeout(function() {
+            const startRouteBtn = document.getElementById('startRouteBtn');
+            if (startRouteBtn) {
+                // Remove existing listeners
+                const newBtn = startRouteBtn.cloneNode(true);
+                startRouteBtn.parentNode.replaceChild(newBtn, startRouteBtn);
+                
+                // Add new listener
+                newBtn.addEventListener('click', function() {
+                    const currentUser = authManager.getCurrentUser();
+                    if (!currentUser) return;
+                    
+                    const isStarting = this.textContent.includes('Start');
+                    
+                    if (isStarting) {
+                        // Start route
+                        this.innerHTML = '<i class="fas fa-stop-circle" style="font-size: 1.5rem;"></i><span>End Route</span>';
+                        this.classList.remove('btn-success');
+                        this.classList.add('btn-danger');
+                        
+                        // Update driver data
+                        currentUser.movementStatus = 'on-route';
+                        dataManager.updateUser(currentUser.id, {
+                            movementStatus: 'on-route',
+                            lastStatusUpdate: new Date().toISOString()
+                        });
+                        
+                        // Force update location timestamp
+                        const location = dataManager.getDriverLocation(currentUser.id);
+                        if (location) {
+                            dataManager.updateDriverLocation(currentUser.id, location.lat, location.lng);
+                        }
+                        
+                        // Update map
+                        if (window.mapManager && mapManager.updateDriverStatus) {
+                            mapManager.updateDriverStatus(currentUser.id, 'on-route');
+                        }
+                        
+                        // Update status text
+                        const statusElement = document.querySelector('#driverStatusIndicator');
+                        if (statusElement) {
+                            statusElement.textContent = 'On Route';
+                            statusElement.style.color = '#f59e0b';
+                        }
+                        
+                        alert('Route started! Your status is now "On Route"');
+                    } else {
+                        // End route
+                        this.innerHTML = '<i class="fas fa-play-circle" style="font-size: 1.5rem;"></i><span>Start Route</span>';
+                        this.classList.remove('btn-danger');
+                        this.classList.add('btn-success');
+                        
+                        // Update driver data
+                        currentUser.movementStatus = 'active';
+                        dataManager.updateUser(currentUser.id, {
+                            movementStatus: 'active',
+                            lastStatusUpdate: new Date().toISOString()
+                        });
+                        
+                        // Update map
+                        if (window.mapManager && mapManager.updateDriverStatus) {
+                            mapManager.updateDriverStatus(currentUser.id, 'active');
+                        }
+                        
+                        // Update status text
+                        const statusElement = document.querySelector('#driverStatusIndicator');
+                        if (statusElement) {
+                            statusElement.textContent = 'Online';
+                            statusElement.style.color = '#10b981';
+                        }
+                        
+                        alert('Route ended. Your status is now "Active"');
+                    }
+                });
+            }
+        }, 1000);
+    });
+    
+    console.log('Driver route fixes applied inline');
+})();
+</script>

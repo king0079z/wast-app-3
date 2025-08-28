@@ -1,0 +1,70 @@
+name: 🚀 Deploy to Vercel
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: 🎯 Deploy Autonautics Waste Management System
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: 📦 Install Dependencies
+        run: |
+          npm ci
+          npm install -g vercel
+      
+      - name: 🔗 Link Vercel Project
+        run: vercel link --yes --token=${{ secrets.VERCEL_TOKEN }}
+      
+      - name: 🏗️ Build Project
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
+          NODE_ENV: production
+      
+      - name: 🚀 Deploy to Preview (PR)
+        if: github.event_name == 'pull_request'
+        run: vercel deploy --token=${{ secrets.VERCEL_TOKEN }}
+      
+      - name: 🚀 Deploy to Production (Main)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
+      
+      - name: 🧪 Test Deployment
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        run: |
+          echo "🔍 Testing deployment endpoints..."
+          sleep 30  # Wait for deployment to be ready
+          curl -f https://autonautics-waste-management.vercel.app/api/health || exit 1
+          curl -f https://autonautics-waste-management.vercel.app/api/info || exit 1
+          echo "✅ All tests passed!"
+      
+      - name: 📊 Deployment Summary
+        if: always()
+        run: |
+          echo "## 🎉 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Project**: Autonautics Waste Management System" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: ${{ github.ref == 'refs/heads/main' && 'Production' || 'Preview' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "- **URL**: https://autonautics-waste-management.vercel.app" >> $GITHUB_STEP_SUMMARY
+          fi
