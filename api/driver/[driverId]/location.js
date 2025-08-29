@@ -2,22 +2,25 @@
 const db = require('../../db');
 
 module.exports = async (req, res) => {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
-
-  if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
-  }
-
   try {
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Content-Type', 'application/json');
+
+    if (req.method === 'OPTIONS') {
+      res.status(200).end();
+      return;
+    }
+
+    if (req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+
+    // Ensure data integrity for serverless environment
+    db.ensureDataIntegrity();
     const { driverId } = req.query;
     const { latitude, longitude, accuracy, timestamp } = req.body;
 
@@ -45,10 +48,17 @@ module.exports = async (req, res) => {
     }
   } catch (error) {
     console.error('❌ Location update error:', error);
+    
+    // Ensure we always return JSON, not HTML
+    res.setHeader('Content-Type', 'application/json');
     res.status(500).json({
+      success: false,
       error: 'Internal server error',
-      message: error.message
+      message: error.message || 'Unknown error occurred',
+      timestamp: new Date().toISOString()
     });
   }
 };
+
+
 

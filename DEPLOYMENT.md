@@ -257,3 +257,5 @@ For deployment issues:
 
 🎉 **Your Autonautics Waste Management System is now ready for production on Vercel!**
 
+
+

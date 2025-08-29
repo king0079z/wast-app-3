@@ -1,27 +1,8 @@
 // Database configuration for Vercel deployment
-const { Pool } = require('pg');
+// Using in-memory storage optimized for serverless environment
 
-// Initialize database connection
-let pool;
-
-function getPool() {
-  if (!pool) {
-    // Use Vercel Postgres connection string or fallback to in-memory storage
-    if (process.env.POSTGRES_URL) {
-      pool = new Pool({
-        connectionString: process.env.POSTGRES_URL,
-        ssl: {
-          rejectUnauthorized: false
-        }
-      });
-    } else {
-      // Fallback to in-memory storage for development
-      console.log('⚠️ No database URL found, using in-memory storage');
-      return null;
-    }
-  }
-  return pool;
-}
+// Simple in-memory storage for serverless functions
+console.log('🚀 Using in-memory storage for Vercel serverless deployment');
 
 // In-memory storage as fallback
 const inMemoryData = {
@@ -78,98 +59,20 @@ const inMemoryData = {
   ]
 };
 
-// Database operations
-async function query(text, params) {
-  const db = getPool();
-  if (!db) {
-    // Use in-memory storage
-    return { rows: [] };
-  }
+// Simple data operations for serverless environment
+function ensureDataIntegrity() {
+  // Ensure all data arrays exist
+  if (!inMemoryData.bins) inMemoryData.bins = [];
+  if (!inMemoryData.users) inMemoryData.users = [];
+  if (!inMemoryData.collections) inMemoryData.collections = [];
+  if (!inMemoryData.issues) inMemoryData.issues = [];
+  if (!inMemoryData.vehicles) inMemoryData.vehicles = [];
+  if (!inMemoryData.routes) inMemoryData.routes = [];
+  if (!inMemoryData.alerts) inMemoryData.alerts = [];
+  if (!inMemoryData.complaints) inMemoryData.complaints = [];
+  if (!inMemoryData.systemLogs) inMemoryData.systemLogs = [];
   
-  try {
-    const result = await db.query(text, params);
-    return result;
-  } catch (err) {
-    console.error('Database query error:', err);
-    throw err;
-  }
-}
-
-// Initialize database tables
-async function initializeDatabase() {
-  const db = getPool();
-  if (!db) return;
-
-  try {
-    // Create tables if they don't exist
-    await query(`
-      CREATE TABLE IF NOT EXISTS bins (
-        id VARCHAR(50) PRIMARY KEY,
-        location VARCHAR(255),
-        fill INTEGER,
-        status VARCHAR(50),
-        type VARCHAR(50),
-        last_collection DATE,
-        temperature INTEGER,
-        battery INTEGER,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
-    await query(`
-      CREATE TABLE IF NOT EXISTS users (
-        id VARCHAR(50) PRIMARY KEY,
-        name VARCHAR(255),
-        type VARCHAR(50),
-        email VARCHAR(255),
-        status VARCHAR(50),
-        last_login TIMESTAMP,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
-    await query(`
-      CREATE TABLE IF NOT EXISTS collections (
-        id VARCHAR(50) PRIMARY KEY,
-        bin_id VARCHAR(50),
-        driver_id VARCHAR(50),
-        timestamp TIMESTAMP,
-        weight INTEGER,
-        status VARCHAR(50),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
-    await query(`
-      CREATE TABLE IF NOT EXISTS issues (
-        id VARCHAR(50) PRIMARY KEY,
-        type VARCHAR(50),
-        description TEXT,
-        priority VARCHAR(50),
-        status VARCHAR(50),
-        reported_by VARCHAR(255),
-        date TIMESTAMP,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
-    await query(`
-      CREATE TABLE IF NOT EXISTS vehicles (
-        id VARCHAR(50) PRIMARY KEY,
-        type VARCHAR(50),
-        license_plate VARCHAR(50),
-        capacity VARCHAR(50),
-        status VARCHAR(50),
-        driver_id VARCHAR(50),
-        fuel_level INTEGER,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
-    console.log('✅ Database tables initialized');
-  } catch (err) {
-    console.error('❌ Database initialization error:', err);
-  }
+  console.log('✅ Data integrity ensured');
 }
 
 // Data access functions
@@ -266,8 +169,7 @@ function addRoute(route) {
 
 // Export functions
 module.exports = {
-  query,
-  initializeDatabase,
+  ensureDataIntegrity,
   getBins,
   getUsers,
   getCollections,
@@ -285,4 +187,6 @@ module.exports = {
   addRoute,
   inMemoryData
 };
+
+
 

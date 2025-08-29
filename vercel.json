@@ -1,7 +1,32 @@
 {
   "version": 2,
   "name": "autonautics-waste-management",
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
   "routes": [
+    {
+      "src": "/api/driver/([^/]+)/location",
+      "dest": "/api/driver/[driverId]/location.js"
+    },
+    {
+      "src": "/api/driver/([^/]+)/routes",
+      "dest": "/api/driver/[driverId]/routes.js"
+    },
+    {
+      "src": "/api/driver/([^/]+)/update",
+      "dest": "/api/driver/[driverId]/update.js"
+    },
+    {
+      "src": "/api/driver/([^/]+)/status",
+      "dest": "/api/driver/[driverId]/status.js"
+    },
+    {
+      "src": "/api/driver/([^/]+)/fuel",
+      "dest": "/api/driver/[driverId]/fuel.js"
+    },
     {
       "src": "/api/(.*)",
       "dest": "/api/$1"

@@ -94,7 +94,23 @@ class WebSocketManager {
         }
     }
     
+    isServerlessEnvironment() {
+        // Check if we're on Vercel or similar serverless platform
+        const hostname = window.location.hostname;
+        return hostname.includes('vercel.app') || 
+               hostname.includes('netlify.app') || 
+               hostname.includes('herokuapp.com') ||
+               hostname.includes('github.io');
+    }
+    
     connect() {
+        // Skip WebSocket connection on serverless platforms
+        if (this.isServerlessEnvironment()) {
+            console.log('🚫 WebSocket disabled for serverless deployment, using HTTP polling instead');
+            this.isConnected = false;
+            return;
+        }
+        
         try {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const wsUrl = `${protocol}//${window.location.host}/ws`;
@@ -215,6 +231,12 @@ class WebSocketManager {
     }
     
     scheduleReconnect() {
+        // Don't attempt reconnection on serverless platforms
+        if (this.isServerlessEnvironment()) {
+            console.log('🚫 Skipping WebSocket reconnection on serverless platform');
+            return;
+        }
+        
         if (this.reconnectAttempts >= this.maxReconnectAttempts) {
             console.error('❌ Max reconnection attempts reached');
             return;

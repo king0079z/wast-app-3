@@ -45,3 +45,5 @@ filesToCopy.forEach(file => {
 
 console.log(`\n✅ Successfully copied ${copiedCount} files to public directory`);
 console.log('\n🚀 Ready to push to GitHub!');
+
+

@@ -2,17 +2,20 @@
 const db = require('../../db');
 
 module.exports = async (req, res) => {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
-
   try {
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Content-Type', 'application/json');
+
+    if (req.method === 'OPTIONS') {
+      res.status(200).end();
+      return;
+    }
+
+    // Ensure data integrity for serverless environment
+    db.ensureDataIntegrity();
     const { driverId } = req.query;
 
     if (!driverId) {
@@ -54,10 +57,17 @@ module.exports = async (req, res) => {
     }
   } catch (error) {
     console.error('❌ Routes error:', error);
+    
+    // Ensure we always return JSON, not HTML
+    res.setHeader('Content-Type', 'application/json');
     res.status(500).json({
+      success: false,
       error: 'Internal server error',
-      message: error.message
+      message: error.message || 'Unknown error occurred',
+      timestamp: new Date().toISOString()
     });
   }
 };
+
+
 
