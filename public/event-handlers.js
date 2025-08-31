@@ -700,7 +700,6 @@ async function findBestBinSuggestion(bins, driverId) {
                 const locationData = await response.json();
                 console.log(`📡 Server locations response:`, locationData);
                 
-<<<<<<< HEAD
                 if (locationData.success && locationData.drivers) {
                     // CRITICAL FIX: Convert driver array to location object format
                     const driverLocationMap = {};
@@ -723,17 +722,6 @@ async function findBestBinSuggestion(bins, driverId) {
                     const foundLocation = driverLocationMap[driverId];
                     if (foundLocation) {
                         driverLocation = foundLocation;
-=======
-                if (locationData.success && locationData.locations) {
-                    // Update ALL driver locations in data manager
-                    const serverLocations = locationData.locations;
-                    dataManager.setData('driverLocations', serverLocations);
-                    console.log(`💾 Updated all driver locations in cache:`, serverLocations);
-                    
-                    // Now get specific driver location
-                    if (serverLocations[driverId]) {
-                        driverLocation = serverLocations[driverId];
->>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
                         locationSource = 'server_fresh';
                         console.log(`✅ Found driver ${driverId} location from server:`, driverLocation);
                     }

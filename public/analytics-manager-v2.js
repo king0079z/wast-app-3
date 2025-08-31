@@ -1505,11 +1505,7 @@ class AnalyticsManagerV2 {
                 this.charts.collectionsTrend.data.datasets[0].data = newData.data;
                 this.charts.collectionsTrend.update('none');
             } else if (this.charts.collectionsTrend) {
-<<<<<<< HEAD
                 // Silently remove invalid chart to reduce console spam
-=======
-                console.warn('⚠️ Collections trend chart invalid, removing...');
->>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
                 delete this.charts.collectionsTrend;
             }
             
@@ -1523,11 +1519,7 @@ class AnalyticsManagerV2 {
                 this.charts.fillDistribution.data.datasets[0].data = newDistribution;
                 this.charts.fillDistribution.update('none');
             } else if (this.charts.fillDistribution) {
-<<<<<<< HEAD
                 // Silently remove invalid chart to reduce console spam
-=======
-                console.warn('⚠️ Fill distribution chart invalid, removing...');
->>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
                 delete this.charts.fillDistribution;
             }
             
@@ -1706,7 +1698,6 @@ class AnalyticsManagerV2 {
         // Window resize handler
         window.addEventListener('resize', () => {
             Object.values(this.charts).forEach(chart => {
-<<<<<<< HEAD
                 // ✅ FIXED: Enhanced validation to prevent Canvas errors
                 if (chart && chart.canvas && chart.canvas.parentNode && !chart.isDestroyed && typeof chart.resize === 'function') {
                     try {
@@ -1718,10 +1709,6 @@ class AnalyticsManagerV2 {
                             delete this.charts[chartKey];
                         }
                     }
-=======
-                if (chart && typeof chart.resize === 'function') {
-                    chart.resize();
->>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
                 }
             });
         });

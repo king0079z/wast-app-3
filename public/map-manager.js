@@ -254,7 +254,6 @@ class MapManager {
         
         // Don't clear all markers, just update them
         const drivers = dataManager.getUsers().filter(u => u.type === 'driver');
-<<<<<<< HEAD
         let locations = dataManager.getAllDriverLocations();
         
         console.log(`🔍 Found ${drivers.length} drivers, ${Object.keys(locations).length} location entries`);
@@ -293,9 +292,6 @@ class MapManager {
             console.log('✅ Updated driver locations - all drivers now have map positions');
             locations = dataManager.getAllDriverLocations(); // Refresh locations
         }
-=======
-        const locations = dataManager.getAllDriverLocations();
->>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
 
         drivers.forEach(driver => {
             let location = locations[driver.id];
@@ -711,19 +707,14 @@ class MapManager {
         const currentDriver = authManager.getCurrentUser();
         const driverId = currentDriver.id;
         
-<<<<<<< HEAD
         console.log(`🔴 DRIVER GPS UPDATE: ${driverId} -> ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
         
         // Update in local database
-=======
-        // Update in database
->>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
         dataManager.updateDriverLocation(driverId, latitude, longitude, {
             accuracy,
             simulated: this.simulatedGPS
         });
         
-<<<<<<< HEAD
         // CRITICAL: Force immediate sync to server for manager to see
         if (window.syncManager) {
             console.log(`📡 Force syncing driver ${driverId} GPS to server`);
@@ -736,8 +727,6 @@ class MapManager {
             });
         }
         
-=======
->>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
         // Update GPS status display
         const gpsStatus = document.getElementById('gpsStatus');
         if (gpsStatus) {

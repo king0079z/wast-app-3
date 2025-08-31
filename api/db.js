@@ -1,5 +1,4 @@
 // Database configuration for Vercel deployment
-<<<<<<< HEAD
 let Pool = null;
 let pool = null;
 
@@ -34,12 +33,6 @@ function getPool() {
   }
   return pool;
 }
-=======
-// Using in-memory storage optimized for serverless environment
-
-// Simple in-memory storage for serverless functions
-console.log('🚀 Using in-memory storage for Vercel serverless deployment');
->>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
 
 // In-memory storage as fallback
 const inMemoryData = {
@@ -96,7 +89,6 @@ const inMemoryData = {
   ]
 };
 
-<<<<<<< HEAD
 // Database operations
 async function query(text, params) {
   const db = getPool();
@@ -191,22 +183,6 @@ async function initializeDatabase() {
   } catch (err) {
     console.error('❌ Database initialization error:', err);
   }
-=======
-// Simple data operations for serverless environment
-function ensureDataIntegrity() {
-  // Ensure all data arrays exist
-  if (!inMemoryData.bins) inMemoryData.bins = [];
-  if (!inMemoryData.users) inMemoryData.users = [];
-  if (!inMemoryData.collections) inMemoryData.collections = [];
-  if (!inMemoryData.issues) inMemoryData.issues = [];
-  if (!inMemoryData.vehicles) inMemoryData.vehicles = [];
-  if (!inMemoryData.routes) inMemoryData.routes = [];
-  if (!inMemoryData.alerts) inMemoryData.alerts = [];
-  if (!inMemoryData.complaints) inMemoryData.complaints = [];
-  if (!inMemoryData.systemLogs) inMemoryData.systemLogs = [];
-  
-  console.log('✅ Data integrity ensured');
->>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
 }
 
 // Data access functions
@@ -303,7 +279,8 @@ function addRoute(route) {
 
 // Export functions
 module.exports = {
-  ensureDataIntegrity,
+  query,
+  initializeDatabase,
   getBins,
   getUsers,
   getCollections,
@@ -321,6 +298,4 @@ module.exports = {
   addRoute,
   inMemoryData
 };
-
-
 

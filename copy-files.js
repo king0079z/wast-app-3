@@ -62,8 +62,3 @@ if (copiedCount > 0) {
 }
 
 console.log('\n✅ File copying completed!');
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303

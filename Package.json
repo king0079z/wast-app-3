@@ -60,13 +60,9 @@
     "helmet": "^7.1.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",
-<<<<<<< HEAD
     "leaflet": "^1.9.4",
     "pg": "^8.16.3",
     "ws": "^8.14.2"
-=======
-    "leaflet": "^1.9.4"
->>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
   },
   "devDependencies": {
     "@babel/core": "^7.23.3",

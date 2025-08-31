@@ -368,11 +368,7 @@ class DriverSystemV3 {
         
         try {
             // Get active routes for this driver
-<<<<<<< HEAD
             const response = await fetch(`/api/driver/${this.currentUser.id}?action=routes`);
-=======
-            const response = await fetch(`/api/driver/${this.currentUser.id}/routes`);
->>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
             if (response.ok) {
                 const data = await response.json();
                 const activeRoutes = data.routes || [];
@@ -1008,7 +1004,6 @@ class DriverSystemV3 {
     initializeDriverLocation() {
         if (!this.currentUser) return;
         
-<<<<<<< HEAD
         console.log('🗺️ Initializing driver location for:', this.currentUser.name);
         
         let location = this.getCurrentLocation();
@@ -1045,12 +1040,6 @@ class DriverSystemV3 {
         if (window.syncManager) {
             console.log('📡 Force syncing initial location to server');
             window.syncManager.syncDriverLocation(this.currentUser.id, location);
-=======
-        let location = this.getCurrentLocation();
-        if (location) {
-            location.status = this.getDriverMovementStatus();
-            this.updateDriverLocation(location);
->>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
         }
     }
 
@@ -1152,12 +1141,8 @@ class DriverSystemV3 {
         if (!this.currentUser) return;
 
         try {
-<<<<<<< HEAD
             const baseUrl = window.location.origin;
             const response = await fetch(`${baseUrl}/api/driver/${this.currentUser.id}?action=status`, {
-=======
-            const response = await fetch(`/api/driver/${this.currentUser.id}/status`, {
->>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1184,12 +1169,8 @@ class DriverSystemV3 {
         if (!this.currentUser) return;
 
         try {
-<<<<<<< HEAD
             const baseUrl = window.location.origin;
             const response = await fetch(`${baseUrl}/api/driver/${this.currentUser.id}?action=fuel`, {
-=======
-            const response = await fetch(`/api/driver/${this.currentUser.id}/fuel`, {
->>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1229,13 +1210,9 @@ class DriverSystemV3 {
 
             console.log(`🔄 Syncing driver data - Status: ${currentMovementStatus}`);
 
-<<<<<<< HEAD
             const baseUrl = window.location.origin;
             console.log('🔍 DriverSystem using baseUrl:', baseUrl);
             const response = await fetch(`${baseUrl}/api/driver/${this.currentUser.id}?action=update`, {
-=======
-            const response = await fetch(`/api/driver/${this.currentUser.id}/update`, {
->>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -250,5 +250,3 @@ console.log('   • vercel logs (view deployment logs)');
 console.log('   • vercel inspect (project details)');
 
 console.log('\n🌟 Ready for Zero-Touch Deployment!');
-
-

@@ -1111,11 +1111,7 @@ class AIChartVisualizer {
                 
                 // Verify chart canvas still exists
                 if (!chart || !chart.canvas || !chart.canvas.parentNode || chart.isDestroyed) {
-<<<<<<< HEAD
                     // Silently clean up invalid chart instead of warning (reduces console spam)
-=======
-                    console.warn(`⚠️ Chart ${chartName} canvas invalid, clearing animation interval`);
->>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
                     this.charts.delete(chartName);
                     clearInterval(intervalId);
                     return;
@@ -1272,7 +1268,6 @@ class AIChartVisualizer {
     setupResponsiveBehavior() {
         window.addEventListener('resize', () => {
             this.charts.forEach(chart => {
-<<<<<<< HEAD
                 // ✅ FIXED: Validate chart before resize to prevent Canvas errors
                 if (chart && chart.canvas && chart.canvas.parentNode && !chart.isDestroyed) {
                     try {
@@ -1282,9 +1277,6 @@ class AIChartVisualizer {
                         this.charts.delete(chart);
                     }
                 }
-=======
-                chart.resize();
->>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
             });
         });
         

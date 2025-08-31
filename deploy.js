@@ -212,5 +212,3 @@ try {
 console.log('\n🌟 Thank you for using Autonautics Waste Management System!');
 console.log('='.repeat(60));
 
-
-
