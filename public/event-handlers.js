@@ -700,6 +700,30 @@ async function findBestBinSuggestion(bins, driverId) {
                 const locationData = await response.json();
                 console.log(`📡 Server locations response:`, locationData);
                 
+<<<<<<< HEAD
+                if (locationData.success && locationData.drivers) {
+                    // CRITICAL FIX: Convert driver array to location object format
+                    const driverLocationMap = {};
+                    locationData.drivers.forEach(driver => {
+                        if (driver.location) {
+                            driverLocationMap[driver.id] = {
+                                lat: driver.location.latitude || driver.location.lat,
+                                lng: driver.location.longitude || driver.location.lng,
+                                timestamp: driver.lastUpdate || new Date().toISOString(),
+                                accuracy: driver.location.accuracy || 10,
+                                status: driver.status || 'active'
+                            };
+                        }
+                    });
+                    
+                    console.log(`💾 Updated all driver locations in correct format:`, driverLocationMap);
+                    dataManager.setData('driverLocations', driverLocationMap);
+                    
+                    // Now get specific driver location from converted format
+                    const foundLocation = driverLocationMap[driverId];
+                    if (foundLocation) {
+                        driverLocation = foundLocation;
+=======
                 if (locationData.success && locationData.locations) {
                     // Update ALL driver locations in data manager
                     const serverLocations = locationData.locations;
@@ -709,6 +733,7 @@ async function findBestBinSuggestion(bins, driverId) {
                     // Now get specific driver location
                     if (serverLocations[driverId]) {
                         driverLocation = serverLocations[driverId];
+>>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
                         locationSource = 'server_fresh';
                         console.log(`✅ Found driver ${driverId} location from server:`, driverLocation);
                     }

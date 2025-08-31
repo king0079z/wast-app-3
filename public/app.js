@@ -1303,11 +1303,20 @@ class WasteManagementApp {
     loadMonitoring() {
         console.log('🔄 Loading monitoring section...');
         
+        // ✅ CRITICAL FIX: Immediate driver location sync for live monitoring
+        const currentUser = authManager?.getCurrentUser();
+        if (currentUser && currentUser.type !== 'driver' && window.syncManager) {
+            console.log('🌐 IMMEDIATE: Syncing all driver locations for live monitoring');
+            window.syncManager.syncDriverLocationsForManager().catch(error => {
+                console.warn('⚠️ Driver location sync failed, continuing with cached data');
+            });
+        }
+        
         // Initialize map (if not already initialized)
         this.initializeMapIfNeeded();
         
         // Load monitoring data with slight delay to ensure map is ready
-            setTimeout(() => {
+        setTimeout(() => {
             this.loadMonitoringData();
         }, 150);
         
@@ -2416,15 +2425,29 @@ class WasteManagementApp {
                 const locationData = await response.json();
                 console.log(`📡 Server location response:`, locationData);
                 
-                if (locationData.success && locationData.locations) {
-                    // Update ALL driver locations in data manager
-                    const serverLocations = locationData.locations;
-                    dataManager.setData('driverLocations', serverLocations);
-                    console.log(`✅ Updated driver locations in cache:`, serverLocations);
+                if (locationData.success && locationData.drivers) {
+                    // CRITICAL FIX: Convert driver array to location object format
+                    const driverLocationMap = {};
+                    locationData.drivers.forEach(driver => {
+                        if (driver.location) {
+                            driverLocationMap[driver.id] = {
+                                lat: driver.location.latitude || driver.location.lat,
+                                lng: driver.location.longitude || driver.location.lng,
+                                timestamp: driver.lastUpdate || new Date().toISOString(),
+                                accuracy: driver.location.accuracy || 10,
+                                status: driver.status || 'active'
+                            };
+                        }
+                    });
                     
-                    if (serverLocations[driverId]) {
-                        console.log(`✅ Driver ${driverId} location synced:`, serverLocations[driverId]);
-                        return serverLocations[driverId];
+                    console.log(`✅ Updated driver locations in correct format:`, driverLocationMap);
+                    dataManager.setData('driverLocations', driverLocationMap);
+                    
+                    // Find driver location in converted format
+                    const driverLocation = driverLocationMap[driverId];
+                    if (driverLocation) {
+                        console.log(`✅ Driver ${driverId} location synced:`, driverLocation);
+                        return driverLocation;
                     } else {
                         console.warn(`⚠️ Driver ${driverId} location not found on server`);
                         return null;

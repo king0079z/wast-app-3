@@ -5189,10 +5189,30 @@ function createDriverPerformanceTrendChart(driverId) {
     });
 }
 
+<<<<<<< HEAD
+// Driver Action Functions - REDIRECTED TO DRIVER SYSTEM V3
+window.updateDriverFuel = function() {
+    if (!window.currentDriverDetailsId) return;
+    
+    // CRITICAL: Use DriverSystemV3 to avoid fuel update conflicts
+    if (window.driverSystemV3 && typeof window.driverSystemV3.updateFuelLevel === 'function') {
+        const currentLevel = getDriverFuelLevel(window.currentDriverDetailsId);
+        const newLevel = prompt(`Update fuel level for driver (current: ${currentLevel}%):`, currentLevel);
+        
+        if (newLevel !== null && !isNaN(newLevel) && newLevel >= 0 && newLevel <= 100) {
+            // Use the unified fuel update system
+            window.driverSystemV3.updateFuelLevel(parseInt(newLevel));
+        }
+        return;
+    }
+    
+    // Fallback for when DriverSystemV3 is not available
+=======
 // Driver Action Functions
 window.updateDriverFuel = function() {
     if (!window.currentDriverDetailsId) return;
     
+>>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
     const currentLevel = getDriverFuelLevel(window.currentDriverDetailsId);
     const newLevel = prompt(`Update fuel level for driver (current: ${currentLevel}%):`, currentLevel);
     

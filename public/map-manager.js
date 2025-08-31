@@ -254,7 +254,48 @@ class MapManager {
         
         // Don't clear all markers, just update them
         const drivers = dataManager.getUsers().filter(u => u.type === 'driver');
+<<<<<<< HEAD
+        let locations = dataManager.getAllDriverLocations();
+        
+        console.log(`🔍 Found ${drivers.length} drivers, ${Object.keys(locations).length} location entries`);
+        console.log('📍 Available locations:', Object.keys(locations));
+        
+        // ✅ CRITICAL FIX: Ensure ALL drivers have locations for map display
+        let locationUpdated = false;
+        const qatarCenter = { lat: 25.2854, lng: 51.5310 };
+        
+        drivers.forEach((driver, index) => {
+            if (!locations[driver.id] || !locations[driver.id].lat || !locations[driver.id].lng) {
+                console.log(`🚨 Creating default location for driver ${driver.id} (${driver.name})`);
+                
+                // Create unique positions around Doha center
+                const angle = (index * 60) % 360; // 60-degree spacing
+                const distance = 0.02 + (index % 3) * 0.01; // Varying distances
+                const offsetLat = Math.cos(angle * Math.PI / 180) * distance;
+                const offsetLng = Math.sin(angle * Math.PI / 180) * distance;
+                
+                const newLocation = {
+                    lat: qatarCenter.lat + offsetLat,
+                    lng: qatarCenter.lng + offsetLng,
+                    timestamp: new Date().toISOString(),
+                    status: 'active',
+                    accuracy: 50,
+                    source: 'default_initialization'
+                };
+                
+                locations[driver.id] = newLocation;
+                dataManager.setDriverLocation(driver.id, newLocation);
+                locationUpdated = true;
+            }
+        });
+        
+        if (locationUpdated) {
+            console.log('✅ Updated driver locations - all drivers now have map positions');
+            locations = dataManager.getAllDriverLocations(); // Refresh locations
+        }
+=======
         const locations = dataManager.getAllDriverLocations();
+>>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
 
         drivers.forEach(driver => {
             let location = locations[driver.id];
@@ -670,12 +711,33 @@ class MapManager {
         const currentDriver = authManager.getCurrentUser();
         const driverId = currentDriver.id;
         
+<<<<<<< HEAD
+        console.log(`🔴 DRIVER GPS UPDATE: ${driverId} -> ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+        
+        // Update in local database
+=======
         // Update in database
+>>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
         dataManager.updateDriverLocation(driverId, latitude, longitude, {
             accuracy,
             simulated: this.simulatedGPS
         });
         
+<<<<<<< HEAD
+        // CRITICAL: Force immediate sync to server for manager to see
+        if (window.syncManager) {
+            console.log(`📡 Force syncing driver ${driverId} GPS to server`);
+            window.syncManager.syncDriverLocation(driverId, {
+                latitude: latitude,
+                longitude: longitude,
+                accuracy: accuracy,
+                timestamp: new Date().toISOString(),
+                simulated: this.simulatedGPS
+            });
+        }
+        
+=======
+>>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
         // Update GPS status display
         const gpsStatus = document.getElementById('gpsStatus');
         if (gpsStatus) {

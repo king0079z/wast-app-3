@@ -1176,7 +1176,7 @@ class DriverSystemV3 {
 
             console.log(`🔄 Syncing driver data - Status: ${currentMovementStatus}`);
 
-            const response = await fetch(`/api/driver/${this.currentUser.id}/update`, {
+            const response = await fetch(`/api/driver/${this.currentUser.id}?action=update`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

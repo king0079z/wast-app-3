@@ -23,31 +23,29 @@ module.exports = async (req, res) => {
     db.ensureDataIntegrity();
     // Get all drivers with their locations
     const drivers = db.getUsers().filter(user => user.type === 'driver');
-    const vehicles = db.getVehicles();
     
-    const driverLocations = drivers.map(driver => {
-      const vehicle = vehicles.find(v => v.driverId === driver.id);
+    const driversWithLocations = drivers.map(driver => {
+      const vehicle = db.getVehicles().find(v => v.driverId === driver.id);
       
       return {
-        driverId: driver.id,
+        id: driver.id,
         name: driver.name,
-        status: driver.status,
+        status: driver.status || 'active',
         movementStatus: driver.movementStatus || 'stationary',
         location: driver.lastLocation || {
-          latitude: 25.276987 + (Math.random() - 0.5) * 0.1,
-          longitude: 51.520008 + (Math.random() - 0.5) * 0.1
+          latitude: 25.276987,
+          longitude: 51.520008
         },
         vehicle: vehicle ? {
           id: vehicle.id,
-          type: vehicle.type,
           licensePlate: vehicle.licensePlate,
-          fuelLevel: vehicle.fuelLevel
+          fuelLevel: vehicle.fuelLevel || 75
         } : null,
         lastUpdate: driver.lastUpdate || new Date().toISOString()
       };
     });
 
-    console.log(`📍 Driver locations requested: ${driverLocations.length} drivers`);
+    console.log(`📍 Driver locations requested - Found ${driversWithLocations.length} drivers`);
     
     // Convert to the format expected by the client
     const locations = {};
@@ -68,9 +66,15 @@ module.exports = async (req, res) => {
     
     res.status(200).json({
       success: true,
+<<<<<<< HEAD
+      drivers: driversWithLocations,
+      count: driversWithLocations.length,
+=======
       locations: locations,
+>>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
       timestamp: new Date().toISOString()
     });
+    
   } catch (error) {
     console.error('❌ Driver locations error:', error);
     
@@ -84,4 +88,3 @@ module.exports = async (req, res) => {
     });
   }
 };
-

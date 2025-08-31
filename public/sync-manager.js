@@ -3,6 +3,10 @@
 class SyncManager {
     constructor() {
         this.baseUrl = window.location.origin;
+<<<<<<< HEAD
+        console.log('🔍 SyncManager baseUrl set to:', this.baseUrl);
+=======
+>>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
         this.syncInterval = null;
         this.isOnline = navigator.onLine;
         this.lastSyncTime = null;
@@ -45,7 +49,11 @@ class SyncManager {
 
     async checkServerConnection() {
         try {
+<<<<<<< HEAD
+            const response = await fetch(`${this.baseUrl}/api/system?action=health`, {
+=======
             const response = await fetch(`${this.baseUrl}/api/health`, {
+>>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -89,9 +97,30 @@ class SyncManager {
         this.syncInterval = setInterval(() => {
             if (this.isOnline && this.syncEnabled && !this.isSyncing) {
                 this.performIntelligentSync();
+<<<<<<< HEAD
+                
+                // ENHANCED: Auto-sync driver locations for manager (more frequent for real-time tracking)
+                setTimeout(() => {
+                    this.syncDriverLocationsForManager();
+                }, 500); // Reduced delay for faster GPS updates
             }
         }, this.adaptiveInterval);
         
+        // ✅ CRITICAL FIX: Additional high-frequency location sync for managers
+        if (authManager && authManager.getCurrentUser() && authManager.getCurrentUser().type !== 'driver') {
+            console.log('🌐 Starting high-frequency driver location sync for manager');
+            this.locationSyncInterval = setInterval(() => {
+                if (this.isOnline && this.syncEnabled) {
+                    this.syncDriverLocationsForManager();
+                }
+            }, 10000); // Every 10 seconds for real-time tracking
+        }
+        
+=======
+            }
+        }, this.adaptiveInterval);
+        
+>>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
         console.log(`🔄 Intelligent periodic sync started (${this.adaptiveInterval/1000}s interval)`);
     }
     
@@ -116,6 +145,14 @@ class SyncManager {
             this.syncInterval = setInterval(() => {
                 if (this.isOnline && this.syncEnabled && !this.isSyncing) {
                     this.performIntelligentSync();
+<<<<<<< HEAD
+                    
+                    // ENHANCED: Auto-sync driver locations for manager
+                    setTimeout(() => {
+                        this.syncDriverLocationsForManager();
+                    }, 1000); // Slight delay to not overwhelm the server
+=======
+>>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
                 }
             }, currentInterval);
         }
@@ -162,6 +199,18 @@ class SyncManager {
     }
 
     // Sync all data from server to local
+<<<<<<< HEAD
+    // Force refresh baseUrl to ensure it's current
+    refreshBaseUrl() {
+        const newBaseUrl = window.location.origin;
+        if (this.baseUrl !== newBaseUrl) {
+            console.log('🔄 Updating baseUrl from', this.baseUrl, 'to', newBaseUrl);
+            this.baseUrl = newBaseUrl;
+        }
+    }
+
+=======
+>>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
     async syncFromServer() {
         if (!this.syncEnabled || !this.isOnline) return;
         
@@ -176,6 +225,12 @@ class SyncManager {
         try {
             console.log('📥 Syncing from server...');
             
+<<<<<<< HEAD
+            // Ensure we're using the current URL
+            this.refreshBaseUrl();
+            
+=======
+>>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
             // Enhanced connection health check with timeout
             const startTime = Date.now();
             const controller = new AbortController();
@@ -303,6 +358,70 @@ class SyncManager {
         }
     }
     
+<<<<<<< HEAD
+    // Enhanced driver location sync for manager
+    async syncDriverLocationsForManager() {
+        if (!this.syncEnabled || !this.isOnline) return;
+        
+        // Only fetch locations if user is admin/manager
+        if (!authManager || !authManager.getCurrentUser()) return;
+        const currentUser = authManager.getCurrentUser();
+        if (currentUser.type === 'driver') return; // Don't sync if user is driver
+        
+        try {
+            this.refreshBaseUrl();
+            console.log('📍 Manager fetching all driver locations...');
+            
+            const response = await fetch(`${this.baseUrl}/api/driver/locations`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'no-cache'
+                }
+            });
+            
+            if (response.ok) {
+                const locationData = await response.json();
+                console.log('📡 Driver locations from server:', locationData);
+                
+                if (locationData.success && locationData.drivers) {
+                    // CRITICAL FIX: Convert driver array to location object format
+                    const driverLocationMap = {};
+                    locationData.drivers.forEach(driver => {
+                        if (driver.location) {
+                            driverLocationMap[driver.id] = {
+                                lat: driver.location.latitude || driver.location.lat,
+                                lng: driver.location.longitude || driver.location.lng,
+                                timestamp: driver.lastUpdate || new Date().toISOString(),
+                                accuracy: driver.location.accuracy || 10,
+                                status: driver.status || 'active'
+                            };
+                        }
+                    });
+                    
+                    console.log('🔄 Converted driver locations:', driverLocationMap);
+                    
+                    // Update driver locations in correct format
+                    dataManager.setData('driverLocations', driverLocationMap);
+                    
+                    // Trigger map refresh if map manager exists
+                    if (typeof mapManager !== 'undefined' && mapManager.map) {
+                        console.log('🗺️ Refreshing driver markers on manager map');
+                        mapManager.loadDriversOnMap(); // Use loadDriversOnMap instead of initializeAllDrivers
+                    }
+                    
+                    return true;
+                }
+            }
+        } catch (error) {
+            console.error('❌ Failed to sync driver locations for manager:', error);
+        }
+        
+        return false;
+    }
+    
+=======
+>>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
     // NEW: Enhanced change detection for specific data types
     hasDataChanged(type, serverData, localData) {
         try {
@@ -371,6 +490,12 @@ class SyncManager {
         }
 
         try {
+<<<<<<< HEAD
+            // Ensure we're using the current URL
+            this.refreshBaseUrl();
+            
+=======
+>>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
             // If no data provided, get all current data from dataManager
             let syncData = data;
             if (!syncData && typeof dataManager !== 'undefined') {
@@ -449,7 +574,13 @@ class SyncManager {
         }
 
         try {
+<<<<<<< HEAD
+            // Ensure we're using the current URL
+            this.refreshBaseUrl();
+            const response = await fetch(`${this.baseUrl}/api/driver/${driverId}?action=location`, {
+=======
             const response = await fetch(`${this.baseUrl}/api/driver/${driverId}/location`, {
+>>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -535,7 +666,11 @@ class SyncManager {
         }
 
         try {
+<<<<<<< HEAD
+            const response = await fetch(`${this.baseUrl}/api/driver/${driverId}?action=routes`);
+=======
             const response = await fetch(`${this.baseUrl}/api/driver/${driverId}/routes`);
+>>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
             const result = await response.json();
             
             if (result.success) {
@@ -713,6 +848,24 @@ if (typeof dataManager !== 'undefined') {
     dataManager.updateDriverLocation = function(driverId, latitude, longitude, additionalData = {}) {
         const result = originalUpdateDriverLocation.call(this, driverId, latitude, longitude, additionalData);
         
+<<<<<<< HEAD
+        // ✅ FIXED: Validate driver exists before syncing location
+        const driver = this.getUserById(driverId);
+        if (!driver || driver.type !== 'driver') {
+            console.warn(`⚠️ Skipping location sync for non-existent or non-driver user: ${driverId}`);
+            return result;
+        }
+        
+        // Sync to server
+        if (window.syncManager) {
+            window.syncManager.syncDriverLocation(driverId, {
+                latitude: latitude,
+                longitude: longitude,
+                timestamp: new Date().toISOString(),
+                ...additionalData
+            }).catch(error => {
+                console.warn(`⚠️ Location sync failed for ${driverId}, continuing without sync`);
+=======
         // Sync to server
         if (window.syncManager) {
             window.syncManager.syncDriverLocation(driverId, {
@@ -720,6 +873,7 @@ if (typeof dataManager !== 'undefined') {
                 lng: longitude,
                 timestamp: new Date().toISOString(),
                 ...additionalData
+>>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
             });
         }
         

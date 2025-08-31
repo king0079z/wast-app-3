@@ -33,6 +33,85 @@ class EnhancedMessagingSystem {
         this.initializeMessagingInterface();
         
         console.log('✅ Enhanced Messaging System initialized');
+        
+        // ✅ NEW: Listen for immediate emergency alerts across tabs
+        this.setupImmediateEmergencyListeners();
+    }
+
+    // ✅ NEW: Setup listeners for immediate emergency alerts
+    setupImmediateEmergencyListeners() {
+        // Listen for custom events (same tab)
+        document.addEventListener('immediateEmergency', (event) => {
+            console.log('🚨 IMMEDIATE EMERGENCY EVENT RECEIVED:', event.detail);
+            this.showEmergencyNotification(event.detail);
+        });
+        
+        // Listen for localStorage changes (cross-tab)
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'emergencyAlert' && event.newValue) {
+                try {
+                    const emergencyAlert = JSON.parse(event.newValue);
+                    console.log('🚨 CROSS-TAB EMERGENCY ALERT RECEIVED:', emergencyAlert);
+                    this.showEmergencyNotification(emergencyAlert);
+                    
+                    // Clear the alert after processing
+                    setTimeout(() => {
+                        localStorage.removeItem('emergencyAlert');
+                    }, 1000);
+                } catch (error) {
+                    console.error('Error parsing emergency alert:', error);
+                }
+            }
+        });
+        
+        // ✅ ENHANCED: Multiple checks for existing alerts on page load
+        this.checkForExistingEmergencyAlerts();
+        
+        // ✅ ADDITIONAL: Setup BroadcastChannel listener if available
+        if (typeof BroadcastChannel !== 'undefined') {
+            try {
+                this.emergencyChannel = new BroadcastChannel('emergencyAlerts');
+                this.emergencyChannel.addEventListener('message', (event) => {
+                    console.log('🚨 BROADCAST CHANNEL EMERGENCY RECEIVED:', event.data);
+                    this.showEmergencyNotification(event.data);
+                });
+                console.log('📡 BroadcastChannel emergency listener activated');
+            } catch (error) {
+                console.warn('BroadcastChannel setup failed:', error);
+            }
+        }
+        
+        // ✅ CRITICAL FIX: Periodic check every 2 seconds for admin users
+        if (this.currentUser && this.currentUser.type !== 'driver') {
+            this.emergencyCheckInterval = setInterval(() => {
+                this.checkForExistingEmergencyAlerts();
+                this.pollForNewMessages(); // Also poll immediately
+            }, 2000);
+            
+            console.log('🚨 EMERGENCY: Started 2-second emergency monitoring for admin');
+        }
+        
+        console.log('✅ Immediate emergency listeners activated');
+    }
+
+    // ✅ NEW: Enhanced method to check for existing emergency alerts
+    checkForExistingEmergencyAlerts() {
+        try {
+            const existingAlert = localStorage.getItem('emergencyAlert');
+            if (existingAlert) {
+                const emergencyAlert = JSON.parse(existingAlert);
+                const alertTime = new Date(emergencyAlert.broadcastTime).getTime();
+                const now = new Date().getTime();
+                
+                // Only process if alert is less than 60 seconds old (increased from 30s)
+                if (now - alertTime < 60000) {
+                    console.log('🚨 PROCESSING EXISTING EMERGENCY ALERT:', emergencyAlert);
+                    this.showEmergencyNotification(emergencyAlert);
+                }
+            }
+        } catch (error) {
+            console.error('Error checking for existing emergency alerts:', error);
+        }
     }
 
     setupEventListeners() {
@@ -135,6 +214,119 @@ class EnhancedMessagingSystem {
         
         // Admin messaging will be initialized when driver details modal opens
         this.setupAdminMessagingForCurrentDriver();
+        
+        // ✅ NEW: Start polling for emergency messages when WebSocket is unavailable
+        this.startMessagePolling();
+    }
+
+    // NEW: Start polling for emergency messages when WebSocket is unavailable
+    startMessagePolling() {
+        // ✅ FIXED: Better WebSocket detection for serverless environments
+        const isServerlessEnvironment = window.location.hostname.includes('vercel.app') || 
+                                       window.location.hostname.includes('netlify.app') || 
+                                       window.location.hostname.includes('github.io');
+        
+        if (window.webSocketManager && window.webSocketManager.isConnected && !isServerlessEnvironment) {
+            console.log('🔌 WebSocket available and not serverless, skipping message polling');
+            return;
+        }
+        
+        console.log('🚨 SERVERLESS DETECTED: WebSocket disabled, using HTTP polling for emergency messages');
+        
+        console.log('📡 Starting HTTP message polling for admin...');
+        
+        // 🚨 CRITICAL FIX: Poll every 5 seconds for emergency messages (was 30s!)
+        this.messagePollingInterval = setInterval(() => {
+            this.pollForNewMessages();
+        }, 5000);
+        
+        // Also poll immediately
+        setTimeout(() => {
+            this.pollForNewMessages();
+        }, 1000);
+    }
+
+    // NEW: Poll for new messages via HTTP API
+    async pollForNewMessages() {
+        if (!this.currentUser || this.currentUser.type === 'driver') return;
+        
+        try {
+            const baseUrl = window.location.origin;
+            const response = await fetch(`${baseUrl}/api/messages?type=emergency`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'no-cache'
+                }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                
+                if (result.success && result.messages && result.messages.length > 0) {
+                    console.log(`📨 Found ${result.messages.length} emergency messages from server`);
+                    
+                    // Process each message
+                    result.messages.forEach(message => {
+                        // Check if this is a new message we haven't seen
+                        const existingMessages = this.messages[message.senderId] || [];
+                        const messageExists = existingMessages.some(m => m.id === message.id);
+                        
+                        if (!messageExists) {
+                            console.log('🚨 New emergency message detected:', message.id);
+                            
+                            // Add to local storage
+                            this.addMessage(message.senderId, message);
+                            
+                            // Show emergency notification
+                            this.showEmergencyNotification(message);
+                            
+                            // Update UI if the message interface is open
+                            this.refreshMessageDisplay();
+                        }
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('❌ Failed to poll for emergency messages:', error);
+        }
+    }
+
+    // NEW: Show emergency notification to admin
+    showEmergencyNotification(message) {
+        console.log('🚨 Showing emergency notification to admin:', message);
+        
+        // Browser notification
+        if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('🚨 EMERGENCY ALERT', {
+                body: `${message.senderName}: ${message.message.substring(0, 100)}`,
+                icon: '/favicon.ico',
+                tag: 'emergency',
+                requireInteraction: true,
+                vibrate: [300, 100, 300, 100, 300]
+            });
+        }
+        
+        // App alert
+        if (window.app && typeof window.app.showAlert === 'function') {
+            window.app.showAlert('🚨 EMERGENCY ALERT', 
+                `Driver ${message.senderName} needs immediate assistance!`, 
+                'error', 10000);
+        }
+        
+        // Play emergency sound
+        this.playEmergencySound();
+    }
+
+    // NEW: Refresh message display
+    refreshMessageDisplay() {
+        // Refresh admin message interface if it's visible
+        const messagesContainer = document.getElementById('adminMessagesHistory');
+        if (messagesContainer && messagesContainer.style.display !== 'none') {
+            if (this.currentDriverId) {
+                this.loadAdminMessages(this.currentDriverId);
+            }
+        }
     }
 
     loadMessagesFromStorage() {
@@ -258,6 +450,9 @@ class EnhancedMessagingSystem {
         // Send via WebSocket with high priority
         this.sendViaWebSocket(messageData, true);
         
+        // ✅ CRITICAL FIX: IMMEDIATE emergency notification for all admin/manager users
+        this.immediateEmergencyBroadcast(messageData);
+        
         // Play emergency sound
         this.playEmergencySound();
 
@@ -267,6 +462,79 @@ class EnhancedMessagingSystem {
         }
 
         console.log('🚨 Emergency message sent');
+    }
+
+    // ✅ NEW: IMMEDIATE emergency broadcast - bypasses polling delays
+    async immediateEmergencyBroadcast(messageData) {
+        console.log('🚨 IMMEDIATE EMERGENCY BROADCAST:', messageData.message.substring(0, 50));
+        
+        try {
+            // 1. Send to server immediately
+            const baseUrl = window.location.origin;
+            const response = await fetch(`${baseUrl}/api/messages`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'no-cache'
+                },
+                body: JSON.stringify({
+                    ...messageData,
+                    immediateAlert: true // Flag for immediate processing
+                })
+            });
+
+            if (response.ok) {
+                console.log('✅ Emergency message delivered to server immediately');
+            }
+
+            // 2. Use localStorage for cross-tab communication (immediate local alerts)
+            const emergencyAlert = {
+                id: messageData.id,
+                message: messageData.message,
+                senderName: messageData.senderName,
+                senderId: messageData.senderId,
+                timestamp: messageData.timestamp,
+                type: 'emergency_immediate',
+                broadcastTime: new Date().toISOString()
+            };
+            
+            localStorage.setItem('emergencyAlert', JSON.stringify(emergencyAlert));
+            
+            // 3. Dispatch custom event for same-tab immediate alerts
+            document.dispatchEvent(new CustomEvent('immediateEmergency', {
+                detail: emergencyAlert
+            }));
+            
+            // 4. ✅ CRITICAL FIX: IMMEDIATE admin notification in current tab
+            if (this.currentUser && this.currentUser.type !== 'driver') {
+                console.log('🚨 IMMEDIATE NOTIFICATION: Admin detected in current tab');
+                this.showEmergencyNotification(emergencyAlert);
+            }
+            
+            // 5. Force immediate polling of all admin windows
+            if (window.enhancedMessaging && typeof window.enhancedMessaging.pollForNewMessages === 'function') {
+                setTimeout(() => {
+                    window.enhancedMessaging.pollForNewMessages();
+                }, 200); // Reduced delay for faster response
+            }
+            
+            // 6. ✅ ADDITIONAL: Use BroadcastChannel API if available for better cross-tab communication
+            if (typeof BroadcastChannel !== 'undefined') {
+                try {
+                    const channel = new BroadcastChannel('emergencyAlerts');
+                    channel.postMessage(emergencyAlert);
+                    console.log('📡 Emergency alert sent via BroadcastChannel');
+                    channel.close();
+                } catch (error) {
+                    console.warn('BroadcastChannel not available:', error);
+                }
+            }
+            
+            console.log('🚨 Emergency broadcast complete - all channels activated');
+            
+        } catch (error) {
+            console.error('❌ Emergency broadcast failed:', error);
+        }
     }
 
     loadDriverMessages(driverId) {
@@ -707,7 +975,56 @@ class EnhancedMessagingSystem {
             window.webSocketManager.send(wsMessage);
             console.log('📡 Message sent via WebSocket:', messageData.id, 'Target:', enhancedMessageData.targetDriverId || 'N/A');
         } else {
-            console.warn('⚠️ WebSocket not available, message saved locally only');
+            // ✅ CRITICAL FIX: HTTP Fallback for Serverless Environments
+            console.log('📡 WebSocket unavailable, using HTTP fallback for message delivery');
+            this.sendViaHTTP(messageData, highPriority);
+        }
+    }
+
+    // NEW: HTTP Fallback for message delivery when WebSocket is unavailable
+    async sendViaHTTP(messageData, highPriority = false) {
+        try {
+            const baseUrl = window.location.origin;
+            
+            // Add target driver ID for admin messages
+            const enhancedMessageData = { ...messageData };
+            if (messageData.sender === 'admin' && this.currentDriverId) {
+                enhancedMessageData.targetDriverId = this.currentDriverId;
+            }
+            
+            // Set priority based on message type and highPriority flag
+            if (messageData.type === 'emergency' || highPriority) {
+                enhancedMessageData.priority = 'high';
+            }
+            
+            console.log('📤 Sending message via HTTP API:', enhancedMessageData);
+            
+            const response = await fetch(`${baseUrl}/api/messages`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'no-cache'
+                },
+                body: JSON.stringify(enhancedMessageData)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log('✅ Message delivered via HTTP:', result.messageId);
+                
+                // Special handling for emergency messages
+                if (messageData.type === 'emergency') {
+                    console.log('🚨 EMERGENCY MESSAGE DELIVERED TO SERVER:', result.messageId);
+                }
+                
+                return true;
+            } else {
+                console.error('❌ HTTP message delivery failed:', response.status, response.statusText);
+                return false;
+            }
+        } catch (error) {
+            console.error('❌ HTTP message delivery error:', error);
+            return false;
         }
     }
 

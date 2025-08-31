@@ -68,6 +68,20 @@ class DataManager {
                     status: 'active', 
                     rating: 4.8,
                     createdAt: new Date().toISOString() 
+                },
+                { 
+                    id: 'USR-005', 
+                    username: 'driver3', 
+                    password: 'driver123', 
+                    name: 'Ahmed Hassan', 
+                    type: 'driver', 
+                    email: 'ahmed@autonautics.com', 
+                    phone: '+974 5678 9012',
+                    vehicleId: 'DA130-03', 
+                    license: 'DL-34567',
+                    status: 'active', 
+                    rating: 4.9,
+                    createdAt: new Date().toISOString() 
                 }
             ];
             
@@ -379,7 +393,9 @@ class DataManager {
     // Sync driver data to server
     async syncDriverToServer(driverId, userData) {
         try {
-            const response = await fetch(`/api/driver/${driverId}/update`, {
+            const baseUrl = window.location.origin;
+            console.log('🔍 DataManager using baseUrl:', baseUrl);
+            const response = await fetch(`${baseUrl}/api/driver/${driverId}?action=update`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

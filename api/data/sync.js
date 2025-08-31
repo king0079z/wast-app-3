@@ -17,6 +17,20 @@ module.exports = async (req, res) => {
     // Ensure data integrity for serverless environment
     db.ensureDataIntegrity();
     if (req.method === 'GET') {
+<<<<<<< HEAD
+      // Return all system data - ensure all functions exist
+      const systemData = {
+        bins: db.getBins ? db.getBins() : [],
+        users: db.getUsers ? db.getUsers() : [],
+        collections: db.getCollections ? db.getCollections() : [],
+        issues: db.getIssues ? db.getIssues() : [],
+        vehicles: db.getVehicles ? db.getVehicles() : [],
+        routes: db.getRoutes ? db.getRoutes() : [],
+        alerts: db.getAlerts ? db.getAlerts() : [],
+        complaints: db.getComplaints ? db.getComplaints() : [],
+        analytics: db.getAnalytics ? db.getAnalytics() : {},
+        systemLogs: db.getSystemLogs ? db.getSystemLogs() : [],
+=======
       // Return all system data in the format expected by the client
       const systemData = {
         success: true,
@@ -33,6 +47,7 @@ module.exports = async (req, res) => {
           systemLogs: db.getSystemLogs(),
           driverLocations: {}
         },
+>>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
         timestamp: new Date().toISOString()
       };
 
@@ -51,13 +66,38 @@ module.exports = async (req, res) => {
       });
 
       console.log('📊 Data sync requested');
-      res.status(200).json(systemData);
+      res.status(200).json({
+        success: true,
+        data: systemData,
+        timestamp: new Date().toISOString()
+      });
     } else if (req.method === 'POST') {
       // Handle data updates from client
       const requestData = req.body;
       
       console.log('📥 Data sync update received');
       
+<<<<<<< HEAD
+      // Process different types of updates with safety checks
+      switch (type) {
+        case 'driver_location':
+          if (db.updateDriverLocation && data.driverId) {
+            db.updateDriverLocation(data.driverId, data.latitude, data.longitude);
+          }
+          break;
+        case 'driver_status':
+          if (db.updateDriverStatus && data.driverId) {
+            db.updateDriverStatus(data.driverId, data.status, data.movementStatus);
+          }
+          break;
+        case 'collection':
+          if (db.addCollection && data) {
+            db.addCollection(data);
+          }
+          break;
+        default:
+          console.log('⚠️ Unknown update type:', type);
+=======
       // Handle the sync format from the client
       if (requestData.data) {
         const { data, updateType } = requestData;
@@ -102,6 +142,7 @@ module.exports = async (req, res) => {
             console.log(`📝 Updated ${key} data`);
           }
         });
+>>>>>>> 3a3d25021ae37e98129b71bb8b9b56323687f303
       }
 
       res.status(200).json({
