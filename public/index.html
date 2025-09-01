@@ -878,400 +878,68 @@
         </div>
     </div>
     
-    <!-- Enhanced Login Overlay -->
-    <div class="login-overlay" id="loginOverlay" style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, #0c0f1e 0%, #1a1f3a 50%, #2d1b69 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-        backdrop-filter: blur(10px);
-        opacity: 1;
-        visibility: visible;
-        transition: all 0.3s ease-in-out;
-    ">
-        <!-- Animated Background Elements -->
-        <div style="
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
-            animation: gradient-shift 8s ease-in-out infinite;
-        "></div>
-        
-        <!-- Floating Particles -->
-        <div class="floating-particles" style="
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            pointer-events: none;
-        ">
-            <div style="position: absolute; width: 4px; height: 4px; background: rgba(255, 255, 255, 0.3); border-radius: 50%; top: 10%; left: 10%; animation: float 6s ease-in-out infinite;"></div>
-            <div style="position: absolute; width: 6px; height: 6px; background: rgba(120, 219, 255, 0.4); border-radius: 50%; top: 20%; left: 80%; animation: float 8s ease-in-out infinite reverse;"></div>
-            <div style="position: absolute; width: 3px; height: 3px; background: rgba(255, 119, 198, 0.5); border-radius: 50%; top: 80%; left: 20%; animation: float 7s ease-in-out infinite;"></div>
-            <div style="position: absolute; width: 5px; height: 5px; background: rgba(120, 119, 198, 0.3); border-radius: 50%; top: 60%; left: 90%; animation: float 9s ease-in-out infinite reverse;"></div>
-        </div>
-
-        <div class="login-container" style="
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 3rem;
-            width: 100%;
-            max-width: 450px;
-            box-shadow: 
-                0 25px 50px -12px rgba(0, 0, 0, 0.6),
-                0 0 0 1px rgba(255, 255, 255, 0.05),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            position: relative;
-            overflow: hidden;
-            animation: loginSlideIn 0.6s ease-out;
-        ">
-            <!-- Glow Effect -->
-            <div style="
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 1px;
-                background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.8), transparent);
-            "></div>
-            
-            <div class="login-header" style="text-align: center; margin-bottom: 2.5rem;">
-                <div class="login-logo" style="
-                    width: 80px;
-                    height: 80px;
-                    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
-                    border-radius: 20px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin: 0 auto 1.5rem;
-                    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
-                    animation: logoFloat 3s ease-in-out infinite;
-                ">
-                    <i class="fas fa-cube" style="font-size: 2rem; color: white;"></i>
+    <!-- Login Overlay -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-container">
+            <div class="login-header">
+                <div class="login-logo">
+                    <i class="fas fa-cube"></i>
                 </div>
-                <h2 style="color: #f8fafc; margin-bottom: 0.5rem; font-size: 2rem; font-weight: 700;">
-                    Autonautics
-                </h2>
-                <p style="color: #94a3b8; font-size: 0.95rem; margin: 0;">
-                    Smart Waste Management System
-                </p>
+                <h2 style="color: #e2e8f0; margin-bottom: 0.5rem;">Autonautics</h2>
+                <p style="color: #94a3b8; font-size: 0.875rem;">Smart Waste Management System</p>
             </div>
             
-            <div class="user-type-selector" style="
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 0.75rem;
-                margin-bottom: 2rem;
-                background: rgba(0, 0, 0, 0.2);
-                padding: 0.5rem;
-                border-radius: 12px;
-            ">
-                <div class="user-type-btn active" data-user-type="manager" style="
-                    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-                    color: white;
-                    padding: 1rem 0.5rem;
-                    border-radius: 8px;
-                    text-align: center;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-                    border: none;
-                    font-size: 0.875rem;
-                ">
-                    <i class="fas fa-user-tie" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block;"></i>
+            <div class="user-type-selector">
+                <div class="user-type-btn active" data-user-type="manager">
+                    <i class="fas fa-user-tie" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
                     <div>Manager</div>
                 </div>
-                <div class="user-type-btn" data-user-type="driver" style="
-                    background: rgba(255, 255, 255, 0.05);
-                    color: #94a3b8;
-                    padding: 1rem 0.5rem;
-                    border-radius: 8px;
-                    text-align: center;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    font-size: 0.875rem;
-                ">
-                    <i class="fas fa-truck" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block;"></i>
+                <div class="user-type-btn" data-user-type="driver">
+                    <i class="fas fa-truck" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
                     <div>Driver</div>
                 </div>
-                <div class="user-type-btn" data-user-type="admin" style="
-                    background: rgba(255, 255, 255, 0.05);
-                    color: #94a3b8;
-                    padding: 1rem 0.5rem;
-                    border-radius: 8px;
-                    text-align: center;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    font-size: 0.875rem;
-                ">
-                    <i class="fas fa-user-shield" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block;"></i>
+                <div class="user-type-btn" data-user-type="admin">
+                    <i class="fas fa-user-shield" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
                     <div>Admin</div>
                 </div>
             </div>
             
-            <form id="loginForm" style="margin-bottom: 1.5rem;">
-                <div class="form-group" style="margin-bottom: 1.5rem;">
-                    <label class="form-label" style="
-                        display: block;
-                        margin-bottom: 0.5rem;
-                        color: #f1f5f9;
-                        font-weight: 500;
-                        font-size: 0.875rem;
-                    ">Username</label>
-                    <div style="position: relative;">
-                        <i class="fas fa-user" style="
-                            position: absolute;
-                            left: 1rem;
-                            top: 50%;
-                            transform: translateY(-50%);
-                            color: #64748b;
-                            z-index: 1;
-                        "></i>
-                        <input type="text" class="form-input" id="username" placeholder="Enter your username" required style="
-                            width: 100%;
-                            padding: 0.875rem 1rem 0.875rem 2.75rem;
-                            background: rgba(255, 255, 255, 0.05);
-                            border: 1px solid rgba(255, 255, 255, 0.1);
-                            border-radius: 12px;
-                            color: #f8fafc;
-                            font-size: 0.95rem;
-                            transition: all 0.3s ease;
-                            box-sizing: border-box;
-                        ">
-                    </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-input" id="username" placeholder="Enter your username" required>
                 </div>
-                <div class="form-group" style="margin-bottom: 2rem;">
-                    <label class="form-label" style="
-                        display: block;
-                        margin-bottom: 0.5rem;
-                        color: #f1f5f9;
-                        font-weight: 500;
-                        font-size: 0.875rem;
-                    ">Password</label>
-                    <div style="position: relative;">
-                        <i class="fas fa-lock" style="
-                            position: absolute;
-                            left: 1rem;
-                            top: 50%;
-                            transform: translateY(-50%);
-                            color: #64748b;
-                            z-index: 1;
-                        "></i>
-                        <input type="password" class="form-input" id="password" placeholder="Enter your password" required style="
-                            width: 100%;
-                            padding: 0.875rem 1rem 0.875rem 2.75rem;
-                            background: rgba(255, 255, 255, 0.05);
-                            border: 1px solid rgba(255, 255, 255, 0.1);
-                            border-radius: 12px;
-                            color: #f8fafc;
-                            font-size: 0.95rem;
-                            transition: all 0.3s ease;
-                            box-sizing: border-box;
-                        ">
-                    </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="password" placeholder="Enter your password" required>
                 </div>
-                <button type="submit" class="btn btn-primary" style="
-                    width: 100%;
-                    padding: 0.875rem 1.5rem;
-                    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-                    border: none;
-                    border-radius: 12px;
-                    color: white;
-                    font-weight: 600;
-                    font-size: 1rem;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-                    position: relative;
-                    overflow: hidden;
-                ">
-                    <i class="fas fa-sign-in-alt" style="margin-right: 0.5rem;"></i>
-                    Sign In
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
                 </button>
             </form>
             
-            <div style="margin-bottom: 2rem; text-align: center;">
-                <a href="#" id="showRegistrationLink" style="
-                    color: #3b82f6;
-                    text-decoration: none;
-                    font-weight: 500;
-                    font-size: 0.875rem;
-                    transition: color 0.3s ease;
-                ">
+            <div style="margin-top: 1rem; text-align: center;">
+                <a href="#" id="showRegistrationLink" style="color: var(--primary); text-decoration: none;">
                     New user? Register here
                 </a>
             </div>
             
-            <div style="
-                text-align: center;
-                color: #64748b;
-                font-size: 0.8rem;
-                background: rgba(0, 0, 0, 0.2);
-                border-radius: 12px;
-                padding: 1.5rem;
-                border: 1px solid rgba(255, 255, 255, 0.05);
-            ">
-                <p style="margin: 0 0 1rem; color: #94a3b8; font-weight: 500;">Demo Credentials:</p>
-                <div style="display: grid; gap: 0.5rem; text-align: left; max-width: 280px; margin: 0 auto;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: #e2e8f0;">👤 Admin:</span>
-                        <code style="background: rgba(59, 130, 246, 0.1); padding: 0.25rem 0.5rem; border-radius: 4px; color: #3b82f6;">admin / admin123</code>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: #e2e8f0;">👔 Manager:</span>
-                        <code style="background: rgba(16, 185, 129, 0.1); padding: 0.25rem 0.5rem; border-radius: 4px; color: #10b981;">manager1 / manager123</code>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: #e2e8f0;">🚛 Driver:</span>
-                        <code style="background: rgba(245, 158, 11, 0.1); padding: 0.25rem 0.5rem; border-radius: 4px; color: #f59e0b;">driver1 / driver123</code>
-                    </div>
-                </div>
-                <div style="margin-top: 1.25rem;">
-                    <button type="button" id="fixAccountsBtn" class="btn btn-secondary btn-sm" style="
-                        font-size: 0.75rem;
-                        padding: 0.5rem 1rem;
-                        background: rgba(100, 116, 139, 0.2);
-                        border: 1px solid rgba(100, 116, 139, 0.3);
-                        color: #94a3b8;
-                        border-radius: 8px;
-                        cursor: pointer;
-                        transition: all 0.3s ease;
-                    ">
-                        <i class="fas fa-wrench" style="margin-right: 0.5rem;"></i>Fix Demo Accounts
+            <div style="margin-top: 1.5rem; text-align: center; color: #64748b; font-size: 0.875rem;">
+                <p>Demo Credentials:</p>
+                <p>Admin: admin / admin123</p>
+                <p>Manager: manager1 / manager123</p>
+                <p>Driver: driver1 / driver123</p>
+                <div style="margin-top: 1rem;">
+                    <button type="button" id="fixAccountsBtn" class="btn btn-secondary btn-sm" style="font-size: 0.75rem;">
+                        <i class="fas fa-wrench"></i> Fix Demo Accounts
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <style>
-        /* Login Animation Keyframes */
-        @keyframes loginSlideIn {
-            0% {
-                opacity: 0;
-                transform: translateY(30px) scale(0.95);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-        
-        @keyframes logoFloat {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-5px);
-            }
-        }
-        
-        @keyframes gradient-shift {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.8;
-            }
-        }
-        
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-20px);
-            }
-        }
-        
-        /* Enhanced Input Styles */
-        .login-container input:focus {
-            outline: none !important;
-            border-color: #3b82f6 !important;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
-            background: rgba(59, 130, 246, 0.05) !important;
-        }
-        
-        .login-container input::placeholder {
-            color: #64748b !important;
-        }
-        
-        /* Enhanced Button Styles */
-        .login-container button[type="submit"]:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5) !important;
-        }
-        
-        .login-container button[type="submit"]:active {
-            transform: translateY(0) !important;
-        }
-        
-        /* User Type Button Enhancements */
-        .user-type-btn:hover {
-            background: rgba(255, 255, 255, 0.1) !important;
-            border-color: rgba(255, 255, 255, 0.2) !important;
-            color: #f8fafc !important;
-            transform: translateY(-2px);
-        }
-        
-        .user-type-btn.active:hover {
-            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
-            transform: translateY(-2px);
-        }
-        
-        /* Registration Link Enhancement */
-        .login-container a:hover {
-            color: #1d4ed8 !important;
-        }
-        
-        /* Fix Accounts Button Enhancement */
-        .login-container #fixAccountsBtn:hover {
-            background: rgba(100, 116, 139, 0.3) !important;
-            border-color: rgba(100, 116, 139, 0.4) !important;
-            color: #e2e8f0 !important;
-        }
-        
-        /* Mobile Responsiveness */
-        @media (max-width: 768px) {
-            .login-container {
-                margin: 1rem !important;
-                padding: 2rem !important;
-                max-width: calc(100% - 2rem) !important;
-            }
-            
-            .user-type-selector {
-                gap: 0.5rem !important;
-            }
-            
-            .user-type-btn {
-                padding: 0.75rem 0.25rem !important;
-                font-size: 0.8rem !important;
-            }
-            
-            .user-type-btn i {
-                font-size: 1.25rem !important;
-            }
-        }
-    </style>
+
 
     <!-- Registration Modal -->
     <div id="registrationModal" class="modal" style="z-index: 10000;">
